@@ -41,7 +41,7 @@ func NewPostsCreateCommand() *cobra.Command {
 
 		c := mataroa.NewMataroaClient()
 
-		resp, err := mataroa.CreatePost(ctx, c, mataroa.PostsCreateResquest{
+		resp, err := c.CreatePost(ctx, mataroa.PostsCreateResquest{
 			Title:       post.Title,
 			PublishedAt: post.PublishedAt,
 			Body:        post.Body,
@@ -72,7 +72,7 @@ func NewPostsDeleteCommand() *cobra.Command {
 
 		c := mataroa.NewMataroaClient()
 
-		ok, err := mataroa.DeletePost(ctx, c, slug)
+		ok, err := c.DeletePost(ctx, slug)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -114,7 +114,7 @@ func NewPostsListCommand() *cobra.Command {
 		ctx := cmd.Context()
 		c := mataroa.NewMataroaClient()
 
-		posts, err := mataroa.ListPosts(ctx, c)
+		posts, err := c.ListPosts(ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
