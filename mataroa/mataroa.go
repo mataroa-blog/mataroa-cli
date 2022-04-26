@@ -39,7 +39,7 @@ func (mc *Client) newMataroaRequest(ctx context.Context, method, url string, bod
 		url += "/"
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, fmt.Sprintf("%s/%s", mc.endpoint), body)
+	req, err := http.NewRequestWithContext(ctx, method, fmt.Sprintf("%s/%s", mc.endpoint, url), body)
 	if err != nil {
 		return &http.Response{}, fmt.Errorf("error creating request: %s", err)
 	}

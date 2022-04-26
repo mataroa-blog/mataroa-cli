@@ -16,7 +16,7 @@ func (mc *Client) CreatePost(ctx context.Context, post PostsCreateResquest) (Pos
 
 	resp, err := mc.newMataroaRequest(ctx, "POST", "posts", bytes.NewBuffer(body))
 	if err != nil {
-		return PostsCreateResponse{}, fmt.Errorf("error creating request: %s", err)
+		return PostsCreateResponse{}, fmt.Errorf("error creating post: %s", err)
 	}
 	defer resp.Body.Close()
 
@@ -39,7 +39,7 @@ func (mc *Client) ListPosts(ctx context.Context) ([]Post, error) {
 
 	resp, err := mc.newMataroaRequest(ctx, "GET", "posts", nil)
 	if err != nil {
-		return response.PostList, fmt.Errorf("error creating request: %s", err)
+		return response.PostList, fmt.Errorf("error listing posts: %s", err)
 	}
 	defer resp.Body.Close()
 
@@ -59,7 +59,7 @@ func (mc *Client) ListPosts(ctx context.Context) ([]Post, error) {
 func (mc *Client) DeletePost(ctx context.Context, slug string) (bool, error) {
 	resp, err := mc.newMataroaRequest(ctx, "DELETE", fmt.Sprintf("posts/%s", slug), nil)
 	if err != nil {
-		return false, fmt.Errorf("error creating request: %s", err)
+		return false, fmt.Errorf("error deleting post: %s", err)
 	}
 	defer resp.Body.Close()
 
@@ -68,6 +68,36 @@ func (mc *Client) DeletePost(ctx context.Context, slug string) (bool, error) {
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return false, fmt.Errorf("error reading response body: %s", err)
+	}
+
+	var response PostsBaseResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return false, fmt.Errorf("error unmarshaling json: %s", err)
+	}
+
+	return response.OK, nil
+}
+
+func (mc *Client) UpdatePost(ctx context.Context, slug string, post Post) (bool, error) {
+	body, err := json.Marshal(post)
+	if err != nil {
+		return false, fmt.Errorf("error updating post: %s", err)
+	}
+
+	resp, err := mc.newMataroaRequest(ctx, "PATCH", fmt.Sprintf("posts/%s", slug), bytes.NewBuffer(body))
+	if err != nil {
+		return false, fmt.Errorf("error updating post: %s", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 404 {
+		return false, fmt.Errorf("'%s' not found", slug)
+	}
+
+	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return false, fmt.Errorf("error reading response body: %s", err)
 	}
