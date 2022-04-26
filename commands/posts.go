@@ -107,16 +107,9 @@ func NewPostsEditCommand() *cobra.Command {
 		var post *mataroa.Post
 
 		c := mataroa.NewMataroaClient()
-		posts, err := c.ListPosts(ctx)
+		post, err := c.GetPostBySlug(ctx, slug)
 		if err != nil {
-			log.Fatalf("error while trying to list posts: %s", err)
-		}
-
-		for _, npost := range posts {
-			if npost.Slug == slug {
-				post = &npost
-				break
-			}
+			log.Fatalf("error while trying to fetch post with slug %s: %s", slug, err)
 		}
 
 		if post == nil {
@@ -128,7 +121,7 @@ func NewPostsEditCommand() *cobra.Command {
 			log.Fatalf("couldn't create temp file: %s", err)
 		}
 
-		file.WriteString(PostToMarkdown(*post))
+		file.WriteString(mataroa.PostToMarkdown(*post))
 
 		editor := os.Getenv("EDITOR")
 		if len(editor) == 0 {
@@ -151,12 +144,12 @@ func NewPostsEditCommand() *cobra.Command {
 			log.Fatalf("couldn't read new post body from temp file: %s", err)
 		}
 
-    ok, err := c.UpdatePost(ctx, slug, *post)
-    if ok {
-      log.Printf("successfully updated post %s!", slug)
-    } else {
-      log.Fatalf("couldn't update the post %s: %s ", slug, err)
-    }
+		ok, err := c.UpdatePost(ctx, slug, *post)
+		if ok {
+			log.Printf("successfully updated post %s!", slug)
+		} else {
+			log.Fatalf("couldn't update the post %s: %s ", slug, err)
+		}
 	}
 
 	cmd := &cobra.Command{
@@ -168,20 +161,8 @@ func NewPostsEditCommand() *cobra.Command {
 	return cmd
 }
 
-func PostToMarkdown(post mataroa.Post) string {
-	return fmt.Sprintf(`---
-title: %s
-slug: %s
-published_at: %s
----
-
-%s
-    `,
-		post.Title,
-		post.Slug,
-		post.PublishedAt,
-		post.Body,
-	)
+func PostToMarkdown(post mataroa.Post) {
+	panic("unimplemented")
 }
 
 func NewPostsUpdateCommand() *cobra.Command {

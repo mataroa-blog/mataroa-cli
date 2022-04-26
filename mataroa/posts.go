@@ -81,6 +81,31 @@ func (mc *Client) DeletePost(ctx context.Context, slug string) (bool, error) {
 	return response.OK, nil
 }
 
+func (mc *Client) GetPostBySlug(ctx context.Context, slug string) (*Post, error) {
+	resp, err := mc.newMataroaRequest(ctx, "GET", fmt.Sprintf("posts/%s", slug), nil)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching post: %s", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 404 {
+		return nil, fmt.Errorf("'%s' not found", slug)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %s", err)
+	}
+
+	var post Post
+	err = json.Unmarshal(body, &post)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling json: %s", err)
+	}
+
+	return &post, nil
+}
+
 func (mc *Client) UpdatePost(ctx context.Context, slug string, post Post) (bool, error) {
 	body, err := json.Marshal(post)
 	if err != nil {

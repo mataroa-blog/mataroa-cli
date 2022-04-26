@@ -54,3 +54,19 @@ func NewPost(filePath string) (Post, error) {
 		Title:       metadata.Title,
 	}, nil
 }
+
+func PostToMarkdown(post Post) string {
+	return fmt.Sprintf(`---
+title: %s
+slug: %s
+published_at: %s
+---
+
+%s
+    `,
+		post.Title,
+		post.Slug,
+		post.PublishedAt,
+		post.Body,
+	)
+}
