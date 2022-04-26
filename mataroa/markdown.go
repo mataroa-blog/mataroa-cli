@@ -35,7 +35,7 @@ func NewPost(filePath string) (Post, error) {
 
 	var publishedAt string
 	if metadata.PublishedAt != "" {
-		t, err := time.Parse(metadata.PublishedAt, dateFormat)
+		t, err := time.Parse(dateFormat, metadata.PublishedAt)
 		if err != nil {
 			return Post{}, fmt.Errorf("post '%s' contains invalid date format '%s'",
 				filePath,
