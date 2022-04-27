@@ -35,17 +35,17 @@ func newPostsCreateCommand() *cobra.Command {
 		filePath := args[0]
 
 		if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-			log.Fatalf("error creating new post: file '%s' not found\n", filePath)
+			log.Fatalf("%s: error creating new post: file '%s' not found\n", cmd.Use, filePath)
 		}
 
 		f, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			log.Fatalf("error reading markdown file: %s", err)
+			log.Fatalf("%s: error reading markdown file: %s", cmd.Use, err)
 		}
 
 		post, err := mataroa.NewPost(f)
 		if err != nil {
-			log.Fatalf("error creating new post: %s\n", err)
+			log.Fatalf("%s: error creating new post: %s\n", cmd.Use, err)
 		}
 
 		c := mataroa.NewMataroaClient()
@@ -56,11 +56,13 @@ func newPostsCreateCommand() *cobra.Command {
 			Body:        post.Body,
 		})
 		if err != nil {
-			log.Fatalf("error creating new post: %s\n", err)
+			log.Fatalf("%s: error creating new post: %s\n", cmd.Use, err)
 		}
 
 		if resp.OK {
-			fmt.Printf("created post '%s' successfully! %s\n", resp.Slug, resp.URL)
+			fmt.Printf("%s: '%s' created successfully\n%s\n", cmd.Use, resp.Slug, resp.URL)
+			fmt.Printf("%s\n", resp.URL)
+			fmt.Printf("\n")
 		}
 	}
 
@@ -83,14 +85,14 @@ func newPostsDeleteCommand() *cobra.Command {
 
 		response, err := c.DeletePost(ctx, slug)
 		if err != nil {
-			log.Fatalf("couldn't delete post: %s", err)
+			log.Fatalf("%s: couldn't delete post: %s", cmd.Use, err)
 		}
 
 		if !response.OK {
-			log.Fatalf("couldn't delete post: %s", response.Error)
+			log.Fatalf("%s: couldn't delete post: %s", cmd.Use, response.Error)
 		}
 
-		fmt.Printf("deleted post '%s' sucessfully\n", slug)
+		fmt.Printf("%s: '%s' deleted sucessfully\n", cmd.Use, slug)
 	}
 
 	cmd := &cobra.Command{
@@ -156,7 +158,7 @@ func newPostsEditCommand() *cobra.Command {
 		}
 
 		if updateResponse.OK {
-			log.Printf("successfully updated post '%s'!", slug)
+			log.Printf("successfully updated post '%s'", slug)
 		} else {
 			log.Fatalf("couldn't update the post '%s': %s ", slug, updateResponse.Error)
 		}
@@ -180,11 +182,11 @@ func newPostsGetCommand() *cobra.Command {
 		c := mataroa.NewMataroaClient()
 		response, err := c.PostBySlug(ctx, slug)
 		if err != nil {
-			log.Fatalf("couldn't get post '%s': %s", slug, err)
+			log.Fatalf("%s: couldn't get post '%s': %s", cmd.Use, slug, err)
 		}
 
 		if !response.OK {
-			log.Fatalf("couldn't get post '%s': %s", slug, response.Error)
+			log.Fatalf("%s: couldn't get post '%s': %s", cmd.Use, slug, response.Error)
 		}
 
 		md := response.Post.ToMarkdown()
@@ -208,7 +210,7 @@ func newPostsUpdateCommand() *cobra.Command {
 
 		f, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			log.Fatalf("error reading markdown file: %s", err)
+			log.Fatalf("%s: error reading markdown file: %s", cmd.Use, err)
 		}
 
 		post, err := mataroa.NewPost(f)
@@ -223,9 +225,9 @@ func newPostsUpdateCommand() *cobra.Command {
 		}
 
 		if response.OK {
-			log.Printf("successfully updated slug %s with file %s", slug, filePath)
+			log.Printf("%s: '%s' successfully updated", cmd.Use, slug)
 		} else {
-			log.Fatalf("couldn't update slug %s with file %s", slug, response.Error)
+			log.Fatalf("%s: couldn't update '%s': %s", cmd.Use, slug, response.Error)
 		}
 	}
 
@@ -249,9 +251,9 @@ func newPostsListCommand() *cobra.Command {
 		}
 
 		for _, post := range posts {
-			fmt.Printf("%s\n", post.Slug)
-			fmt.Printf("%s - %s", post.Title, post.PublishedAt)
-			fmt.Printf("\n\n")
+			fmt.Printf("%s\t%s\t%s\t\n", post.PublishedAt, post.Slug, post.Title)
+			fmt.Printf("%s\n", post.URL)
+			fmt.Printf("\n")
 		}
 	}
 

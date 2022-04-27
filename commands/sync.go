@@ -58,7 +58,7 @@ func newSyncCommand() *cobra.Command {
 				return nil
 			}
 
-			fmt.Printf("%s: '%s' updated post successfully!\n", cmd.Use, resp.Slug)
+			fmt.Printf("%s: '%s' updated successfully\n", cmd.Use, resp.Slug)
 			fmt.Printf("%s\n", resp.URL)
 			fmt.Printf("\n")
 
