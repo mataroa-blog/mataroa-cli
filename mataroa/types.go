@@ -21,7 +21,8 @@ type PostsCreateResquest struct {
 }
 
 type PostsBaseResponse struct {
-	OK bool `json:"ok,omitempty"`
+	OK    bool   `json:"ok,omitempty"`
+	Error string `json:"error"`
 }
 
 type PostsCreateResponse struct {
@@ -30,7 +31,7 @@ type PostsCreateResponse struct {
 	URL  string `json:"url,omitempty"`
 }
 
-type PostsEditResponse struct {
+type PostsUpdateResponse struct {
 	PostsBaseResponse
 	Slug string `json:"slug,omitempty"`
 	URL  string `json:"url,omitempty"`
@@ -43,4 +44,9 @@ type PostsDeleteResponse struct {
 type PostsListResponse struct {
 	PostsBaseResponse
 	PostList []Post `json:"post_list,omitempty"`
+}
+
+type PostsGetResponse struct {
+	PostsBaseResponse
+	Post
 }

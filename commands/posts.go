@@ -20,6 +20,7 @@ func NewPostsCommand() *cobra.Command {
 	cmd.AddCommand(NewPostsCreateCommand())
 	cmd.AddCommand(NewPostsDeleteCommand())
 	cmd.AddCommand(NewPostsEditCommand())
+	cmd.AddCommand(NewPostsGetCommand())
 	cmd.AddCommand(NewPostsListCommand())
 	cmd.AddCommand(NewPostsUpdateCommand())
 
@@ -53,7 +54,7 @@ func NewPostsCreateCommand() *cobra.Command {
 		}
 
 		if resp.OK {
-			fmt.Printf("post created successfully! %s\n", resp.URL)
+			fmt.Printf("created post '%s' successfully! %s\n", resp.Slug, resp.URL)
 		}
 	}
 
@@ -74,17 +75,16 @@ func NewPostsDeleteCommand() *cobra.Command {
 
 		c := mataroa.NewMataroaClient()
 
-		ok, err := c.DeletePost(ctx, slug)
+		response, err := c.DeletePost(ctx, slug)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("couldn't delete post: %s", err)
 		}
 
-		if !ok {
-			log.Fatalf("could not delete '%s'\n", slug)
-			return
+		if !response.OK {
+			log.Fatalf("couldn't delete post: %s", response.Error)
 		}
 
-		fmt.Printf("successfully deleted post '%s'\n", slug)
+		fmt.Printf("deleted post '%s' sucessfully\n", slug)
 	}
 
 	cmd := &cobra.Command{
@@ -101,19 +101,11 @@ func NewPostsEditCommand() *cobra.Command {
 		ctx := cmd.Context()
 		slug := args[0]
 
-		// TODO: Verify whether it's desirable to walk in the current directory
-		// seeking files with names that match the current slug
-
-		var post *mataroa.Post
-
 		c := mataroa.NewMataroaClient()
-		post, err := c.GetPostBySlug(ctx, slug)
-		if err != nil {
-			log.Fatalf("error while trying to fetch post with slug %s: %s", slug, err)
-		}
 
-		if post == nil {
-			log.Fatalf("could not find post with the given slug: %s", slug)
+		response, err := c.PostBySlug(ctx, slug)
+		if err != nil {
+			log.Fatalf("couldn't get post '%s': %s", slug, err)
 		}
 
 		file, err := os.CreateTemp("", "mata")
@@ -121,7 +113,7 @@ func NewPostsEditCommand() *cobra.Command {
 			log.Fatalf("couldn't create temp file: %s", err)
 		}
 
-		_, err = file.WriteString(mataroa.PostToMarkdown(*post))
+		_, err = file.WriteString(mataroa.PostToMarkdown(response.Post))
 		if err != nil {
 			log.Fatalf("couldn't write markdown to file: %s", err)
 		}
@@ -142,22 +134,55 @@ func NewPostsEditCommand() *cobra.Command {
 			log.Fatalf("error while spawning $EDITOR: %s", err)
 		}
 
-		*post, err = mataroa.NewPost(tempname)
+		post, err := mataroa.NewPost(tempname)
 		if err != nil {
 			log.Fatalf("couldn't read new post body from temp file: %s", err)
 		}
 
-		ok, err := c.UpdatePost(ctx, slug, *post)
-		if ok {
-			log.Printf("successfully updated post %s!", slug)
+		updateResponse, err := c.UpdatePost(ctx, slug, post)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if updateResponse.OK {
+			log.Printf("successfully updated post '%s'!", slug)
 		} else {
-			log.Fatalf("couldn't update the post %s: %s ", slug, err)
+			log.Fatalf("couldn't update the post '%s': %s ", slug, updateResponse.Error)
 		}
 	}
 
 	cmd := &cobra.Command{
 		Use:   "edit",
 		Short: "Edit a post",
+		Args:  cobra.ExactArgs(1),
+		Run:   run,
+	}
+	return cmd
+}
+
+func NewPostsGetCommand() *cobra.Command {
+	run := func(cmd *cobra.Command, args []string) {
+		ctx := cmd.Context()
+
+		slug := args[0]
+
+		c := mataroa.NewMataroaClient()
+		response, err := c.PostBySlug(ctx, slug)
+		if err != nil {
+			log.Fatalf("couldn't get post '%s': %s", slug, err)
+		}
+
+		if !response.OK {
+			log.Fatalf("couldn't get post '%s': %s", slug, response.Error)
+		}
+
+		md := mataroa.PostToMarkdown(response.Post)
+		fmt.Println(md)
+	}
+
+	cmd := &cobra.Command{
+		Use:   "get",
+		Short: "Get a post",
 		Args:  cobra.ExactArgs(1),
 		Run:   run,
 	}
@@ -176,15 +201,15 @@ func NewPostsUpdateCommand() *cobra.Command {
 		}
 		c := mataroa.NewMataroaClient()
 
-		ok, err := c.UpdatePost(ctx, slug, post)
+		response, err := c.UpdatePost(ctx, slug, post)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if ok {
+		if response.OK {
 			log.Printf("successfully updated slug %s with file %s", slug, filepath)
 		} else {
-			log.Fatalf("couldn't update slug %s with file %s", slug, filepath)
+			log.Fatalf("couldn't update slug %s with file %s", slug, response.Error)
 		}
 	}
 

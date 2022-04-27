@@ -56,82 +56,82 @@ func (mc *Client) ListPosts(ctx context.Context) ([]Post, error) {
 	return response.PostList, nil
 }
 
-func (mc *Client) DeletePost(ctx context.Context, slug string) (bool, error) {
+func (mc *Client) DeletePost(ctx context.Context, slug string) (PostsDeleteResponse, error) {
 	resp, err := mc.newMataroaRequest(ctx, "DELETE", fmt.Sprintf("posts/%s", slug), nil)
 	if err != nil {
-		return false, fmt.Errorf("error deleting post: %s", err)
+		return PostsDeleteResponse{}, fmt.Errorf("error deleting post: %s", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
-		return false, fmt.Errorf("'%s' not found", slug)
+		return PostsDeleteResponse{}, fmt.Errorf("'%s' not found", slug)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return false, fmt.Errorf("error reading response body: %s", err)
+		return PostsDeleteResponse{}, fmt.Errorf("error reading response body: %s", err)
 	}
 
 	var response PostsBaseResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		return false, fmt.Errorf("error unmarshaling json: %s", err)
+		return PostsDeleteResponse{}, fmt.Errorf("error unmarshaling json: %s", err)
 	}
 
-	return response.OK, nil
+	return PostsDeleteResponse{}, nil
 }
 
-func (mc *Client) GetPostBySlug(ctx context.Context, slug string) (*Post, error) {
+func (mc *Client) PostBySlug(ctx context.Context, slug string) (PostsGetResponse, error) {
 	resp, err := mc.newMataroaRequest(ctx, "GET", fmt.Sprintf("posts/%s", slug), nil)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching post: %s", err)
+		return PostsGetResponse{}, fmt.Errorf("error fetching post: %s", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
-		return nil, fmt.Errorf("'%s' not found", slug)
+		return PostsGetResponse{}, fmt.Errorf("'%s' not found", slug)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("error reading response body: %s", err)
+		return PostsGetResponse{}, fmt.Errorf("error reading response body: %s", err)
 	}
 
-	var post Post
-	err = json.Unmarshal(body, &post)
+	var response PostsGetResponse
+	err = json.Unmarshal(body, &response)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling json: %s", err)
+		return PostsGetResponse{}, fmt.Errorf("error unmarshaling json: %s", err)
 	}
 
-	return &post, nil
+	return response, nil
 }
 
-func (mc *Client) UpdatePost(ctx context.Context, slug string, post Post) (bool, error) {
+func (mc *Client) UpdatePost(ctx context.Context, slug string, post Post) (PostsUpdateResponse, error) {
 	body, err := json.Marshal(post)
 	if err != nil {
-		return false, fmt.Errorf("error updating post: %s", err)
+		return PostsUpdateResponse{}, fmt.Errorf("error updating post: %s", err)
 	}
 
 	resp, err := mc.newMataroaRequest(ctx, "PATCH", fmt.Sprintf("posts/%s", slug), bytes.NewBuffer(body))
 	if err != nil {
-		return false, fmt.Errorf("error updating post: %s", err)
+		return PostsUpdateResponse{}, fmt.Errorf("error updating post: %s", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
-		return false, fmt.Errorf("'%s' not found", slug)
+		return PostsUpdateResponse{}, fmt.Errorf("'%s' not found", slug)
 	}
 
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return false, fmt.Errorf("error reading response body: %s", err)
+		return PostsUpdateResponse{}, fmt.Errorf("error reading response body: %s", err)
 	}
 
-	var response PostsBaseResponse
+	var response PostsUpdateResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		return false, fmt.Errorf("error unmarshaling json: %s", err)
+		return PostsUpdateResponse{}, fmt.Errorf("error unmarshaling json: %s", err)
 	}
 
-	return response.OK, nil
+	return response, nil
 }

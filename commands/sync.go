@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -9,7 +9,7 @@ import (
 func NewSyncCommand() *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
 		_ = cmd.Context()
-		fmt.Println("not implemented yet")
+		log.Fatal("not implemented yet")
 	}
 
 	cmd := &cobra.Command{

@@ -47,10 +47,10 @@ func (mc *Client) newMataroaRequest(ctx context.Context, method, url string, bod
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", mc.key))
 
-	resp, err := mc.HTTP.Do(req)
+	response, err := mc.HTTP.Do(req)
 	if err != nil {
-		return resp, fmt.Errorf("error making request: %s", err)
+		return response, fmt.Errorf("error making request: %s", err)
 	}
 
-	return resp, nil
+	return response, nil
 }
