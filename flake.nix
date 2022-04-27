@@ -13,7 +13,7 @@
     in
     {
       overlays.default = final: prev: {
-        "${pname}" = final.callPackage ./nix/package.nix {
+        "${pname}" = final.callPackage ./.nix/package.nix {
           inherit final pname version;
         };
       };
