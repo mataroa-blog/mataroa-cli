@@ -40,7 +40,7 @@ func newPostsCreateCommand() *cobra.Command {
 
 		f, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			fmt.Errorf("error reading markdown file: %s", err)
+			log.Fatalf("error reading markdown file: %s", err)
 		}
 
 		post, err := mataroa.NewPost(f)
@@ -208,7 +208,7 @@ func newPostsUpdateCommand() *cobra.Command {
 
 		f, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			fmt.Errorf("error reading markdown file: %s", err)
+			log.Fatalf("error reading markdown file: %s", err)
 		}
 
 		post, err := mataroa.NewPost(f)
