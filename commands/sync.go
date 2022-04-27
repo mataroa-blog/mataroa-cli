@@ -44,7 +44,7 @@ func newSyncCommand() *cobra.Command {
 
 			_, err = c.PostBySlug(ctx, post.Slug)
 			if err != nil {
-				log.Printf("%s: couldn't find any post with the slug '%s'", cmd.Use, post.Slug)
+				fmt.Printf("%s: couldn't find any post with the slug '%s'", cmd.Use, post.Slug)
 				return nil
 			}
 
@@ -54,7 +54,7 @@ func newSyncCommand() *cobra.Command {
 			}
 
 			if !resp.OK {
-				log.Printf("%s: unable to update post '%s': %s", cmd.Use, path, resp.Error)
+				fmt.Printf("%s: unable to update post '%s': %s", cmd.Use, path, resp.Error)
 				return nil
 			}
 

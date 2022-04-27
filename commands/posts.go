@@ -164,12 +164,12 @@ func newPostsEditCommand() *cobra.Command {
 		}
 
 		if !mataroa.HasPostChanged(response.Post, post) {
-			log.Printf("%s: '%s' has not changed, skipping update", cmd.Use, slug)
+			fmt.Printf("%s: '%s' has not changed, skipping update", cmd.Use, slug)
 			return
 		}
 
 		if updateResponse.OK {
-			log.Printf("%s: '%s' updated sucessfully", cmd.Use, slug)
+			fmt.Printf("%s: '%s' updated sucessfully", cmd.Use, slug)
 		} else {
 			log.Fatalf("%s: couldn't update the post '%s': %s ", cmd.Use, slug, updateResponse.Error)
 		}
@@ -236,7 +236,7 @@ func newPostsUpdateCommand() *cobra.Command {
 		}
 
 		if response.OK {
-			log.Printf("%s: '%s' successfully updated", cmd.Use, slug)
+			fmt.Printf("%s: '%s' successfully updated", cmd.Use, slug)
 		} else {
 			log.Fatalf("%s: couldn't update '%s': %s", cmd.Use, slug, response.Error)
 		}
