@@ -4,7 +4,7 @@ let
   inherit (pkgs)
     buildGoModule
     lib
-    scdoc;
+    pandoc;
 in
 buildGoModule {
   inherit pname;
@@ -12,9 +12,11 @@ buildGoModule {
 
   src = lib.cleanSource ../.;
 
-  nativeBuildInputs = with pkgs; [ scdoc ];
+  nativeBuildInputs = [ pandoc ];
 
-  vendorSha256 = "sha256-N3+gaqCJOp5xGOvcJd3OnhPpC1qY1hGzJkZUg7UNrIQ=";
+  vendorSha256 = "sha256-benOdmXp6R1Fwioi5d4KQAgaCJsLavYQ6fCT/FyBUFs=";
+
+  subPackages = [ "cmd/mata" ];
 
   makeFlags = [
     "PREFIX=$(out)"

@@ -20,7 +20,7 @@ Also available as man pages:
 Dependencies (not needed for Nix users):
 
 - Go
-- scdoc (optional, for man pages)
+- Pandoc (optional, for man pages)
 
 ### From Source
 

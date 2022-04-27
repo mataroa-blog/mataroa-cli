@@ -4,7 +4,7 @@ with pkgs; mkShell {
   buildInputs = [
     gnumake
     go
-    scdoc
+    pandoc
 
     # https://github.com/golang/vscode-go/blob/master/docs/tools.md
     delve

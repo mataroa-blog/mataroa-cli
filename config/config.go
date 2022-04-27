@@ -4,12 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"github.com/adrg/xdg"
 )
 
 const (
-	ConfigPath = "mata/config.json"
+	ConfigPath  = "mata/config.json"
+	EnvEndpoint = "MATAROA_ENDPOINT"
+	EnvKey      = "MATAROA_KEY"
 )
 
 type Config struct {
@@ -18,6 +21,13 @@ type Config struct {
 }
 
 func LoadConfig() (Config, error) {
+	if os.Getenv(EnvEndpoint) != "" && os.Getenv(EnvKey) != "" {
+		return Config{
+			Key:      os.Getenv(EnvKey),
+			Endpoint: os.Getenv(EnvEndpoint),
+		}, nil
+	}
+
 	filePath, err := xdg.ConfigFile(ConfigPath)
 	if err != nil {
 		return Config{}, fmt.Errorf("error finding config file: %s", err)
