@@ -70,3 +70,10 @@ published_at: "%s"
 		p.Body,
 	)
 }
+
+func HasPostChanged(old, new Post) bool {
+	return old.Body == new.Body &&
+		old.PublishedAt == new.PublishedAt &&
+		old.Slug == new.Slug &&
+		old.Title == new.Title
+}

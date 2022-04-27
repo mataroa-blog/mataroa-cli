@@ -163,6 +163,11 @@ func newPostsEditCommand() *cobra.Command {
 			log.Fatal(err)
 		}
 
+		if !mataroa.HasPostChanged(response.Post, post) {
+			log.Printf("%s: '%s' has not changed, skipping update", cmd.Use, slug)
+			return
+		}
+
 		if updateResponse.OK {
 			log.Printf("%s: '%s' updated sucessfully", cmd.Use, slug)
 		} else {
