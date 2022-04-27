@@ -13,6 +13,14 @@ var (
 	ISO8601Layout = "2006-01-02"
 )
 
+type Post struct {
+	Title       string `json:"title,omitempty"`
+	Slug        string `json:"slug,omitempty"`
+	Body        string `json:"body,omitempty"`
+	PublishedAt string `json:"published_at,omitempty"`
+	URL         string `json:"url,omitempty"`
+}
+
 func NewPost(filePath string) (Post, error) {
 	f, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -55,18 +63,17 @@ func NewPost(filePath string) (Post, error) {
 	}, nil
 }
 
-func PostToMarkdown(post Post) string {
+func (p Post) ToMarkdown() string {
 	return fmt.Sprintf(`---
 title: %s
 slug: %s
 published_at: %s
 ---
-
 %s
 `,
-		post.Title,
-		post.Slug,
-		post.PublishedAt,
-		post.Body,
+		p.Title,
+		p.Slug,
+		p.PublishedAt,
+		p.Body,
 	)
 }

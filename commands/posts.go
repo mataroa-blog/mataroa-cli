@@ -113,7 +113,7 @@ func newPostsEditCommand() *cobra.Command {
 			log.Fatalf("couldn't create temp file: %s", err)
 		}
 
-		_, err = file.WriteString(mataroa.PostToMarkdown(response.Post))
+		_, err = file.WriteString(response.Post.ToMarkdown())
 		if err != nil {
 			log.Fatalf("couldn't write markdown to file: %s", err)
 		}
@@ -176,7 +176,7 @@ func newPostsGetCommand() *cobra.Command {
 			log.Fatalf("couldn't get post '%s': %s", slug, response.Error)
 		}
 
-		md := mataroa.PostToMarkdown(response.Post)
+		md := response.Post.ToMarkdown()
 		fmt.Println(md)
 	}
 

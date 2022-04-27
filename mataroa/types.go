@@ -6,14 +6,6 @@ type PostFrontmatter struct {
 	PublishedAt string `yaml:"published_at"`
 }
 
-type Post struct {
-	Title       string `json:"title,omitempty"`
-	Slug        string `json:"slug,omitempty"`
-	Body        string `json:"body,omitempty"`
-	PublishedAt string `json:"published_at,omitempty"`
-	URL         string `json:"url,omitempty"`
-}
-
 type PostsCreateResquest struct {
 	Body        string `json:"body,omitempty"`
 	PublishedAt string `json:"published_at,omitempty"`
