@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -113,22 +114,22 @@ func newPostsEditCommand() *cobra.Command {
 
 		response, err := c.PostBySlug(ctx, slug)
 		if err != nil {
-			log.Fatalf("couldn't get post '%s': %s", slug, err)
+			log.Fatalf("%s: couldn't get post '%s': %s", cmd.Use, slug, err)
 		}
 
 		file, err := os.CreateTemp("", "mata")
 		if err != nil {
-			log.Fatalf("couldn't create temp file: %s", err)
+			log.Fatalf("%s: couldn't create temp file: %s", cmd.Use, err)
 		}
 
 		_, err = file.WriteString(response.Post.ToMarkdown())
 		if err != nil {
-			log.Fatalf("couldn't write markdown to file: %s", err)
+			log.Fatalf("%s: couldn't write markdown to file: %s", cmd.Use, err)
 		}
 
 		editor := os.Getenv("EDITOR")
 		if len(editor) == 0 {
-			log.Fatalln("couldn't edit post $EDITOR environment variable not set")
+			log.Fatalf("%s: couldn't edit post $EDITOR environment variable not set", cmd.Use)
 		}
 
 		tempname := file.Name()
@@ -139,17 +140,22 @@ func newPostsEditCommand() *cobra.Command {
 		shellCommand.Stdout = os.Stdout
 		err = shellCommand.Run()
 		if err != nil {
-			log.Fatalf("error while spawning $EDITOR: %s", err)
+			log.Fatalf("%s: error while spawning $EDITOR: %s", cmd.Use, err)
 		}
 
-		f, err := ioutil.ReadFile(tempname)
+		_, err = file.Seek(0, 0)
 		if err != nil {
-			log.Fatalf("error reading temporary markdown file: %s", err)
+			log.Fatalf("%s: error offsetting to the beginning of the file: %s", cmd.Use, err)
+		}
+
+		f, err := io.ReadAll(file)
+		if err != nil {
+			log.Fatalf("%s: error reading temporary markdown file: %s", cmd.Use, err)
 		}
 
 		post, err := mataroa.NewPost(f)
 		if err != nil {
-			log.Fatalf("couldn't read new post body from temp file: %s", err)
+			log.Fatalf("%s: couldn't read new post body from temp file: %s", cmd.Use, err)
 		}
 
 		updateResponse, err := c.UpdatePost(ctx, slug, post)
@@ -158,9 +164,9 @@ func newPostsEditCommand() *cobra.Command {
 		}
 
 		if updateResponse.OK {
-			log.Printf("successfully updated post '%s'", slug)
+			log.Printf("%s: '%s' updated sucessfully", cmd.Use, slug)
 		} else {
-			log.Fatalf("couldn't update the post '%s': %s ", slug, updateResponse.Error)
+			log.Fatalf("%s: couldn't update the post '%s': %s ", cmd.Use, slug, updateResponse.Error)
 		}
 	}
 
