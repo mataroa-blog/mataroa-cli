@@ -11,23 +11,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewPostsCommand() *cobra.Command {
+func newPostsCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "posts",
 		Short: "Manage posts",
 	}
 
-	cmd.AddCommand(NewPostsCreateCommand())
-	cmd.AddCommand(NewPostsDeleteCommand())
-	cmd.AddCommand(NewPostsEditCommand())
-	cmd.AddCommand(NewPostsGetCommand())
-	cmd.AddCommand(NewPostsListCommand())
-	cmd.AddCommand(NewPostsUpdateCommand())
+	cmd.AddCommand(newPostsCreateCommand())
+	cmd.AddCommand(newPostsDeleteCommand())
+	cmd.AddCommand(newPostsEditCommand())
+	cmd.AddCommand(newPostsGetCommand())
+	cmd.AddCommand(newPostsListCommand())
+	cmd.AddCommand(newPostsUpdateCommand())
 
 	return cmd
 }
 
-func NewPostsCreateCommand() *cobra.Command {
+func newPostsCreateCommand() *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 
@@ -67,7 +67,7 @@ func NewPostsCreateCommand() *cobra.Command {
 	return cmd
 }
 
-func NewPostsDeleteCommand() *cobra.Command {
+func newPostsDeleteCommand() *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 
@@ -96,7 +96,7 @@ func NewPostsDeleteCommand() *cobra.Command {
 	return cmd
 }
 
-func NewPostsEditCommand() *cobra.Command {
+func newPostsEditCommand() *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 		slug := args[0]
@@ -160,7 +160,7 @@ func NewPostsEditCommand() *cobra.Command {
 	return cmd
 }
 
-func NewPostsGetCommand() *cobra.Command {
+func newPostsGetCommand() *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 
@@ -189,7 +189,7 @@ func NewPostsGetCommand() *cobra.Command {
 	return cmd
 }
 
-func NewPostsUpdateCommand() *cobra.Command {
+func newPostsUpdateCommand() *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 		slug := args[0]
@@ -222,7 +222,7 @@ func NewPostsUpdateCommand() *cobra.Command {
 	return cmd
 }
 
-func NewPostsListCommand() *cobra.Command {
+func newPostsListCommand() *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 		c := mataroa.NewMataroaClient()

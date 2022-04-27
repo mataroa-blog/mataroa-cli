@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewSyncCommand() *cobra.Command {
+func newSyncCommand() *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
 		_ = cmd.Context()
 		log.Fatal("not implemented yet")

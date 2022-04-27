@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewInitCommand() *cobra.Command {
+func newInitCommand() *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
 		_ = cmd.Context()
 
