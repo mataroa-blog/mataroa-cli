@@ -121,7 +121,10 @@ func NewPostsEditCommand() *cobra.Command {
 			log.Fatalf("couldn't create temp file: %s", err)
 		}
 
-		file.WriteString(mataroa.PostToMarkdown(*post))
+		_, err = file.WriteString(mataroa.PostToMarkdown(*post))
+		if err != nil {
+			log.Fatalf("couldn't write markdown to file: %s", err)
+		}
 
 		editor := os.Getenv("EDITOR")
 		if len(editor) == 0 {
@@ -159,10 +162,6 @@ func NewPostsEditCommand() *cobra.Command {
 		Run:   run,
 	}
 	return cmd
-}
-
-func PostToMarkdown(post mataroa.Post) {
-	panic("unimplemented")
 }
 
 func NewPostsUpdateCommand() *cobra.Command {
