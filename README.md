@@ -1,6 +1,7 @@
 # mata
 
 [![builds.sr.ht status](https://builds.sr.ht/~glorifiedgluer/mata.svg)](https://builds.sr.ht/~glorifiedgluer/mata?)
+[![github actions status](https://github.com/ratsclub/mata/actions/workflows/nix-build.yml/badge.svg)](https://github.com/ratsclub/mata/actions/workflows/nix-build.yml)
 
 [mata](https://git.sr.ht/~glorifiedgluer/mata) is CLI tool for [mataroa.blog](https://mataroa.blog).
 
