@@ -35,7 +35,7 @@ make install
 
 Dependencies:
 
-- Nix 2.7 or later
+- Nix 2.4 or later
 
 You can build and run from your machine with the following:
 
