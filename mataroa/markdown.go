@@ -9,11 +9,9 @@ import (
 	"github.com/adrg/frontmatter"
 )
 
-type PostFrontmatter struct {
-	Title       string    `yaml:"title"`
-	Slug        string    `yaml:"slug"`
-	PublishedAt time.Time `yaml:"published_at"`
-}
+var (
+	dateFormat = "2006-01-02"
+)
 
 func NewPost(filePath string) (Post, error) {
 	f, err := ioutil.ReadFile(filePath)
@@ -35,10 +33,40 @@ func NewPost(filePath string) (Post, error) {
 		return Post{}, fmt.Errorf("post '%s' missing 'slug' attribute", filePath)
 	}
 
+	var publishedAt string
+	if metadata.PublishedAt != "" {
+		t, err := time.Parse(dateFormat, metadata.PublishedAt)
+		if err != nil {
+			return Post{}, fmt.Errorf("post '%s' contains invalid date format '%s'",
+				filePath,
+				metadata.PublishedAt,
+			)
+		}
+		publishedAt = t.Format(dateFormat)
+	} else {
+		publishedAt = ""
+	}
+
 	return Post{
-		Title:       metadata.Title,
-		PublishedAt: metadata.PublishedAt.Format("2006-01-02"),
-		Slug:        metadata.Slug,
 		Body:        string(rest),
+		PublishedAt: publishedAt,
+		Slug:        metadata.Slug,
+		Title:       metadata.Title,
 	}, nil
+}
+
+func PostToMarkdown(post Post) string {
+	return fmt.Sprintf(`---
+title: %s
+slug: %s
+published_at: %s
+---
+
+%s
+    `,
+		post.Title,
+		post.Slug,
+		post.PublishedAt,
+		post.Body,
+	)
 }
