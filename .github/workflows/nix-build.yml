@@ -1,0 +1,27 @@
+name: "Build"
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.4.0
+      - uses: cachix/install-nix-action@v17
+        with:
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Lint"
+        run: |
+          nix develop .#ci -c make lint
+
+      - name: "Test"
+        run: |
+          nix develop .#ci -c make test
+
+      - name: "Build"
+        run: |
+          nix build -L

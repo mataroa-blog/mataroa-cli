@@ -63,7 +63,7 @@ published_at: %s
 ---
 
 %s
-    `,
+`,
 		post.Title,
 		post.Slug,
 		post.PublishedAt,

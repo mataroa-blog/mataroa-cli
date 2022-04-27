@@ -29,7 +29,7 @@ lint:
 	$(GOLANGCILINT) run
 
 test:
-	$(GO) test ./...
+	$(GO) test ./... -v
 
 install:
 	$(INSTALL) -d \
