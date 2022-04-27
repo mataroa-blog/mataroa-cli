@@ -2,7 +2,6 @@ package mataroa
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -21,33 +20,28 @@ type Post struct {
 	URL         string `json:"url,omitempty"`
 }
 
-func NewPost(filePath string) (Post, error) {
-	f, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return Post{}, fmt.Errorf("error reading markdown file: %s", err)
-	}
-
+func NewPost(content []byte) (Post, error) {
 	var metadata PostFrontmatter
-	rest, err := frontmatter.Parse(strings.NewReader(string(f)), &metadata)
+	body, err := frontmatter.Parse(strings.NewReader(string(content)), &metadata)
 	if err != nil {
 		return Post{}, fmt.Errorf("error parsing markdown file frontmatter: %s", err)
 	}
 
 	if metadata.Title == "" {
-		return Post{}, fmt.Errorf("post '%s' missing 'title' attribute", filePath)
+		return Post{}, fmt.Errorf("post missing 'title' attribute")
 	}
 
 	if metadata.Slug == "" {
-		return Post{}, fmt.Errorf("post '%s' missing 'slug' attribute", filePath)
+		return Post{}, fmt.Errorf("post missing 'slug' attribute")
 	}
 
 	var publishedAt string
 	if metadata.PublishedAt != "" {
 		t, err := time.Parse(ISO8601Layout, metadata.PublishedAt)
 		if err != nil {
-			return Post{}, fmt.Errorf("post '%s' contains invalid date format '%s'",
-				filePath,
+			return Post{}, fmt.Errorf("post contains invalid date format '%s' should be '%s' format",
 				metadata.PublishedAt,
+				ISO8601Layout,
 			)
 		}
 		publishedAt = t.Format(ISO8601Layout)
@@ -56,7 +50,7 @@ func NewPost(filePath string) (Post, error) {
 	}
 
 	return Post{
-		Body:        string(rest),
+		Body:        string(body),
 		PublishedAt: publishedAt,
 		Slug:        metadata.Slug,
 		Title:       metadata.Title,
@@ -69,8 +63,7 @@ title: %s
 slug: %s
 published_at: %s
 ---
-%s
-`,
+%s`,
 		p.Title,
 		p.Slug,
 		p.PublishedAt,

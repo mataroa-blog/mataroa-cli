@@ -1,16 +1,13 @@
 package mataroa
 
 import (
-	"io/ioutil"
-	"os"
 	"reflect"
 	"testing"
 )
 
 func TestNewPost(t *testing.T) {
 	type args struct {
-		filePath string
-		content  string
+		content []byte
 	}
 	tests := []struct {
 		name    string
@@ -28,13 +25,13 @@ func TestNewPost(t *testing.T) {
 				Body:        "FooBar and FuzBax.",
 			},
 			args: args{
-				content: `
+				content: []byte(`
 ---
 title: Foobar
 slug: foobar
 published_at: 2022-01-02
 ---
-FooBar and FuzBax.`,
+FooBar and FuzBax.`),
 			},
 		},
 		{
@@ -47,12 +44,12 @@ FooBar and FuzBax.`,
 				Body:        "FooBar and FuzBax.",
 			},
 			args: args{
-				content: `
+				content: []byte(`
 ---
 title: Foobar
 slug: foobar
 ---
-FooBar and FuzBax.`,
+FooBar and FuzBax.`),
 			},
 		},
 		{
@@ -60,12 +57,12 @@ FooBar and FuzBax.`,
 			wantErr: true,
 			want:    Post{},
 			args: args{
-				content: `
+				content: []byte(`
 ---
 slug: foobar
 published_at: 2022-01-02
 ---
-FooBar and FuzBax.`,
+FooBar and FuzBax.`),
 			},
 		},
 		{
@@ -73,12 +70,12 @@ FooBar and FuzBax.`,
 			wantErr: true,
 			want:    Post{},
 			args: args{
-				content: `
+				content: []byte(`
 ---
 title: Foobar
 published_at: 2022-01-02
 ---
-FooBar and FuzBax.`,
+FooBar and FuzBax.`),
 			},
 		},
 		{
@@ -86,38 +83,86 @@ FooBar and FuzBax.`,
 			wantErr: true,
 			want:    Post{},
 			args: args{
-				content: `
+				content: []byte(`
 ---
 title: Foobar
 slug: foobar
 published_at: 01-02-2006
 ---
-FooBar and FuzBax.`,
+FooBar and FuzBax.`),
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tmpFile, err := ioutil.TempFile(t.TempDir(), "*")
-			if err != nil {
-				t.Errorf("%s", err)
-			}
-			defer os.Remove(tmpFile.Name())
-
-			_, err = tmpFile.WriteString(tt.args.content)
-			if err != nil {
-				t.Errorf("%s", err)
-			}
-
-			tt.args.filePath = tmpFile.Name()
-
-			got, err := NewPost(tt.args.filePath)
+			got, err := NewPost(tt.args.content)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewPost() error = %+v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewPost() = %+v, want %+v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPost_ToMarkdown(t *testing.T) {
+	type fields struct {
+		Title       string
+		Slug        string
+		Body        string
+		PublishedAt string
+		URL         string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "should generate post successfully with all attributes",
+			fields: fields{
+				Title:       "Foobar",
+				Slug:        "foobar",
+				Body:        "Foobar and Fuzbax.\n",
+				PublishedAt: "2006-01-02",
+			},
+			want: `---
+title: Foobar
+slug: foobar
+published_at: 2006-01-02
+---
+Foobar and Fuzbax.
+`,
+		},
+		{
+			name: "should generate post successfully without published_at",
+			fields: fields{
+				Title: "Foobar",
+				Slug:  "foobar",
+				Body:  "Foobar and Fuzbax.\n",
+			},
+			want: `---
+title: Foobar
+slug: foobar
+published_at: 
+---
+Foobar and Fuzbax.
+`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := Post{
+				Title:       tt.fields.Title,
+				Slug:        tt.fields.Slug,
+				Body:        tt.fields.Body,
+				PublishedAt: tt.fields.PublishedAt,
+				URL:         tt.fields.URL,
+			}
+			if got := p.ToMarkdown(); got != tt.want {
+				t.Errorf("Post.ToMarkdown() = %+v, want %+v", got, tt.want)
 			}
 		})
 	}

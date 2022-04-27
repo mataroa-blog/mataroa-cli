@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -37,7 +38,12 @@ func newPostsCreateCommand() *cobra.Command {
 			log.Fatalf("error creating new post: file '%s' not found\n", filePath)
 		}
 
-		post, err := mataroa.NewPost(filePath)
+		f, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			fmt.Errorf("error reading markdown file: %s", err)
+		}
+
+		post, err := mataroa.NewPost(f)
 		if err != nil {
 			log.Fatalf("error creating new post: %s\n", err)
 		}
@@ -134,7 +140,12 @@ func newPostsEditCommand() *cobra.Command {
 			log.Fatalf("error while spawning $EDITOR: %s", err)
 		}
 
-		post, err := mataroa.NewPost(tempname)
+		f, err := ioutil.ReadFile(tempname)
+		if err != nil {
+			log.Fatalf("error reading temporary markdown file: %s", err)
+		}
+
+		post, err := mataroa.NewPost(f)
 		if err != nil {
 			log.Fatalf("couldn't read new post body from temp file: %s", err)
 		}
@@ -193,9 +204,14 @@ func newPostsUpdateCommand() *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 		slug := args[0]
-		filepath := args[1]
+		filePath := args[1]
 
-		post, err := mataroa.NewPost(filepath)
+		f, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			fmt.Errorf("error reading markdown file: %s", err)
+		}
+
+		post, err := mataroa.NewPost(f)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -207,7 +223,7 @@ func newPostsUpdateCommand() *cobra.Command {
 		}
 
 		if response.OK {
-			log.Printf("successfully updated slug %s with file %s", slug, filepath)
+			log.Printf("successfully updated slug %s with file %s", slug, filePath)
 		} else {
 			log.Fatalf("couldn't update slug %s with file %s", slug, response.Error)
 		}
