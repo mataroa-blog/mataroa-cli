@@ -7,6 +7,7 @@ func SetupCommands() *cobra.Command {
 		Use:               "mata",
 		Short:             "mata is a CLI tool for mataroa.blog",
 		CompletionOptions: cobra.CompletionOptions{HiddenDefaultCmd: true},
+		DisableAutoGenTag: true,
 	}
 
 	cmd.AddCommand(newInitCommand())
