@@ -59,9 +59,9 @@ func NewPost(content []byte) (Post, error) {
 
 func (p Post) ToMarkdown() string {
 	return fmt.Sprintf(`---
-title: %s
-slug: %s
-published_at: %s
+title: "%s"
+slug: "%s"
+published_at: "%s"
 ---
 %s`,
 		p.Title,

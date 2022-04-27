@@ -19,17 +19,17 @@ func TestNewPost(t *testing.T) {
 			name:    "should return post successfully",
 			wantErr: false,
 			want: Post{
-				Title:       "Foobar",
-				Slug:        "foobar",
+				Title:       "test: file title",
+				Slug:        "file-title",
 				PublishedAt: "2022-01-02",
 				Body:        "FooBar and FuzBax.",
 			},
 			args: args{
 				content: []byte(`
 ---
-title: Foobar
-slug: foobar
-published_at: 2022-01-02
+title: "test: file title"
+slug: "file-title"
+published_at: "2022-01-02"
 ---
 FooBar and FuzBax.`),
 			},
@@ -38,16 +38,16 @@ FooBar and FuzBax.`),
 			name:    "should return post successfully with missing published_at",
 			wantErr: false,
 			want: Post{
-				Title:       "Foobar",
-				Slug:        "foobar",
+				Title:       "test: file title",
+				Slug:        "file-title",
 				PublishedAt: "",
 				Body:        "FooBar and FuzBax.",
 			},
 			args: args{
 				content: []byte(`
 ---
-title: Foobar
-slug: foobar
+title: "test: file title"
+slug: "file-title"
 ---
 FooBar and FuzBax.`),
 			},
@@ -129,9 +129,9 @@ func TestPost_ToMarkdown(t *testing.T) {
 				PublishedAt: "2006-01-02",
 			},
 			want: `---
-title: Foobar
-slug: foobar
-published_at: 2006-01-02
+title: "Foobar"
+slug: "foobar"
+published_at: "2006-01-02"
 ---
 Foobar and Fuzbax.
 `,
@@ -144,9 +144,9 @@ Foobar and Fuzbax.
 				Body:  "Foobar and Fuzbax.\n",
 			},
 			want: `---
-title: Foobar
-slug: foobar
-published_at: 
+title: "Foobar"
+slug: "foobar"
+published_at: ""
 ---
 Foobar and Fuzbax.
 `,
