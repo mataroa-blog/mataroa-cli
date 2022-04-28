@@ -14,7 +14,7 @@ MANDIR = share/man
 all: mata docgen doc/mata-config.5
 
 mata:
-	$(GO) build -o mata cmd/mata/main.go $(GOFLAGS)
+	$(GO) build -o mata cmd/mata/mata.go $(GOFLAGS)
 
 docgen:
 	mkdir -p doc/result
