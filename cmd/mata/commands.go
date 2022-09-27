@@ -65,6 +65,7 @@ func (app *application) commandsPosts(ctx context.Context) *cobra.Command {
 	cmd.AddCommand(app.commandsPostsDelete(ctx))
 	cmd.AddCommand(app.commandsPostsGet(ctx))
 	cmd.AddCommand(app.commandsPostsList(ctx))
+	cmd.AddCommand(app.commandsPostsUpdate(ctx))
 
 	return cmd
 }
