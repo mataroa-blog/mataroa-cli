@@ -1,11 +1,5 @@
 package mataroa
 
-type PostFrontmatter struct {
-	Title       string `yaml:"title"`
-	Slug        string `yaml:"slug"`
-	PublishedAt string `yaml:"published_at"`
-}
-
 type PostsCreateResquest struct {
 	Body        string `json:"body,omitempty"`
 	PublishedAt string `json:"published_at,omitempty"`
@@ -14,7 +8,7 @@ type PostsCreateResquest struct {
 
 type PostsBaseResponse struct {
 	OK    bool   `json:"ok,omitempty"`
-	Error string `json:"error"`
+	Error string `json:"error,omitempty"`
 }
 
 type PostsCreateResponse struct {

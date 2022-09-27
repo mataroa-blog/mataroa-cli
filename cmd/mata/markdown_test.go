@@ -1,24 +1,26 @@
-package mataroa
+package main
 
 import (
 	"reflect"
 	"testing"
+
+	"git.sr.ht/~glorifiedgluer/mata/mataroa"
 )
 
-func TestNewPost(t *testing.T) {
+func TestNewMarkdownToPost(t *testing.T) {
 	type args struct {
 		content []byte
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    Post
+		want    mataroa.Post
 		wantErr bool
 	}{
 		{
 			name:    "should return post successfully",
 			wantErr: false,
-			want: Post{
+			want: mataroa.Post{
 				Title:       "test: file title",
 				Slug:        "file-title",
 				PublishedAt: "2022-01-02",
@@ -37,7 +39,7 @@ FooBar and FuzBax.`),
 		{
 			name:    "should return post successfully with missing published_at",
 			wantErr: false,
-			want: Post{
+			want: mataroa.Post{
 				Title:       "test: file title",
 				Slug:        "file-title",
 				PublishedAt: "",
@@ -55,7 +57,7 @@ FooBar and FuzBax.`),
 		{
 			name:    "should error on missing title",
 			wantErr: true,
-			want:    Post{},
+			want:    mataroa.Post{},
 			args: args{
 				content: []byte(`
 ---
@@ -68,7 +70,7 @@ FooBar and FuzBax.`),
 		{
 			name:    "should error on missing slug",
 			wantErr: true,
-			want:    Post{},
+			want:    mataroa.Post{},
 			args: args{
 				content: []byte(`
 ---
@@ -81,7 +83,7 @@ FooBar and FuzBax.`),
 		{
 			name:    "should error on malformated published at date",
 			wantErr: true,
-			want:    Post{},
+			want:    mataroa.Post{},
 			args: args{
 				content: []byte(`
 ---
@@ -95,19 +97,19 @@ FooBar and FuzBax.`),
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewPost(tt.args.content)
+			got, err := NewMarkdownToPost(tt.args.content)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("NewPost() error = %+v, wantErr %+v", err, tt.wantErr)
+				t.Errorf("NewMarkdownToPost() error = %+v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewPost() = %+v, want %+v", got, tt.want)
+				t.Errorf("NewMarkdownToPost() = %+v, want %+v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestPost_ToMarkdown(t *testing.T) {
+func TestNewPostToMarkdown(t *testing.T) {
 	type fields struct {
 		Title       string
 		Slug        string
@@ -154,14 +156,14 @@ Foobar and Fuzbax.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := Post{
+			p := mataroa.Post{
 				Title:       tt.fields.Title,
 				Slug:        tt.fields.Slug,
 				Body:        tt.fields.Body,
 				PublishedAt: tt.fields.PublishedAt,
 				URL:         tt.fields.URL,
 			}
-			if got := p.ToMarkdown(); got != tt.want {
+			if got := NewPostToMarkdown(p); got != tt.want {
 				t.Errorf("Post.ToMarkdown() = %+v, want %+v", got, tt.want)
 			}
 		})

@@ -10,11 +10,9 @@ buildGoModule {
   inherit pname;
   version = "v${version}";
 
-  src = lib.cleanSource ../.;
+  src = lib.cleanSource ./.;
 
-  nativeBuildInputs = [ pandoc ];
-
-  vendorSha256 = "sha256-benOdmXp6R1Fwioi5d4KQAgaCJsLavYQ6fCT/FyBUFs=";
+  vendorSha256 = "sha256-N3+gaqCJOp5xGOvcJd3OnhPpC1qY1hGzJkZUg7UNrIQ=";
 
   subPackages = [ "cmd/mata" ];
 
@@ -32,7 +30,7 @@ buildGoModule {
 
   meta = with lib; {
     homepage = "https://sr.ht/~glorifiedgluer/mata";
-    description = "A CLI tool for mataroa / mataroa.blog";
+    description = "A CLI tool for mataroa.blog";
     license = licenses.mit;
     maintainers = with maintainers; [ ratsclub ];
   };

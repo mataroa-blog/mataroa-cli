@@ -13,7 +13,7 @@
     in
     {
       overlays.default = final: prev: {
-        mata = final.callPackage ./.nix/package.nix {
+        mata = final.callPackage ./default.nix {
           inherit final pname version;
         };
       };
@@ -24,11 +24,27 @@
           inherit system;
         };
 
-        inherit (pkgs) callPackage;
+        inherit (pkgs)
+          callPackage
+          mkShell
+
+          gnumake
+          go
+
+          # https://github.com/golang/vscode-go/blob/master/docs/tools.md
+          delve
+          go-outline
+          golangci-lint
+          gomodifytags
+          gopls
+          gopkgs
+          gotests
+          impl
+          ;
       in
       rec {
         # `nix build`
-        packages."${pname}" = callPackage ./.nix/package.nix {
+        packages."${pname}" = callPackage ./default.nix {
           inherit pkgs pname version;
         };
         packages.default = packages."${pname}";
@@ -41,8 +57,30 @@
 
         # `nix develop`
         devShells = {
-          default = callPackage ./.nix/develop.shell.nix { inherit pkgs; };
-          ci = callPackage ./.nix/ci.shell.nix { inherit pkgs; };
+          default = mkShell {
+            buildInputs = [
+              gnumake
+              go
+
+              # https://github.com/golang/vscode-go/blob/master/docs/tools.md
+              delve
+              go-outline
+              golangci-lint
+              gomodifytags
+              gopls
+              gopkgs
+              gotests
+              impl
+            ];
+          };
+
+          ci = mkShell {
+            buildInputs = [
+              gnumake
+              go
+              golangci-lint
+            ];
+          };
         };
       });
 }

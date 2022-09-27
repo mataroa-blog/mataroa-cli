@@ -1,45 +1,44 @@
-package mataroa
+package main
 
 import (
 	"fmt"
 	"strings"
 	"time"
 
+	"git.sr.ht/~glorifiedgluer/mata/mataroa"
 	"github.com/adrg/frontmatter"
 )
 
-var (
-	ISO8601Layout = "2006-01-02"
-)
+var ISO8601Layout = "2006-01-02"
 
-type Post struct {
-	Title       string `json:"title,omitempty"`
-	Slug        string `json:"slug,omitempty"`
-	Body        string `json:"body,omitempty"`
-	PublishedAt string `json:"published_at,omitempty"`
-	URL         string `json:"url,omitempty"`
+type postFrontmatter struct {
+	Title       string `yaml:"title"`
+	Slug        string `yaml:"slug"`
+	PublishedAt string `yaml:"published_at"`
 }
 
-func NewPost(content []byte) (Post, error) {
-	var metadata PostFrontmatter
+func NewMarkdownToPost(content []byte) (mataroa.Post, error) {
+	var post mataroa.Post
+	var metadata postFrontmatter
+
 	body, err := frontmatter.Parse(strings.NewReader(string(content)), &metadata)
 	if err != nil {
-		return Post{}, fmt.Errorf("error parsing markdown file frontmatter: %s", err)
+		return post, fmt.Errorf("error parsing markdown file frontmatter: %s", err)
 	}
 
 	if metadata.Title == "" {
-		return Post{}, fmt.Errorf("post missing 'title' attribute")
+		return post, fmt.Errorf("post missing 'title' attribute")
 	}
 
 	if metadata.Slug == "" {
-		return Post{}, fmt.Errorf("post missing 'slug' attribute")
+		return post, fmt.Errorf("post missing 'slug' attribute")
 	}
 
 	var publishedAt string
 	if metadata.PublishedAt != "" {
 		t, err := time.Parse(ISO8601Layout, metadata.PublishedAt)
 		if err != nil {
-			return Post{}, fmt.Errorf("post contains invalid date format '%s' should be '%s' format",
+			return post, fmt.Errorf("post contains invalid date format '%s' should be in '%s' format",
 				metadata.PublishedAt,
 				ISO8601Layout,
 			)
@@ -49,7 +48,7 @@ func NewPost(content []byte) (Post, error) {
 		publishedAt = ""
 	}
 
-	return Post{
+	return mataroa.Post{
 		Body:        string(body),
 		PublishedAt: publishedAt,
 		Slug:        metadata.Slug,
@@ -57,21 +56,21 @@ func NewPost(content []byte) (Post, error) {
 	}, nil
 }
 
-func (p Post) ToMarkdown() string {
+func NewPostToMarkdown(post mataroa.Post) string {
 	return fmt.Sprintf(`---
 title: "%s"
 slug: "%s"
 published_at: "%s"
 ---
 %s`,
-		p.Title,
-		p.Slug,
-		p.PublishedAt,
-		p.Body,
+		post.Title,
+		post.Slug,
+		post.PublishedAt,
+		post.Body,
 	)
 }
 
-func HasPostChanged(old, new Post) bool {
+func HasPostChanged(old, new mataroa.Post) bool {
 	return old.Body == new.Body &&
 		old.PublishedAt == new.PublishedAt &&
 		old.Slug == new.Slug &&

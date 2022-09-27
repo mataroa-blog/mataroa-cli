@@ -1,3 +1,5 @@
+<!-- TODO write documentation and check if readme has the right information and links -->
+
 # mata
 
 [![builds.sr.ht status](https://builds.sr.ht/~glorifiedgluer/mata.svg)](https://builds.sr.ht/~glorifiedgluer/mata?)
