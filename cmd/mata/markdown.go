@@ -12,7 +12,9 @@ import (
 var ISO8601Layout = "2006-01-02"
 
 type postFrontmatter struct {
-	Title       string `yaml:"title"`
+	Title string `yaml:"title"`
+	// Slug represents the slug property of a post, it is an optional field as
+	// the post only receives a slug after creation
 	Slug        string `yaml:"slug"`
 	PublishedAt string `yaml:"published_at"`
 }
@@ -28,10 +30,6 @@ func NewMarkdownToPost(content []byte) (mataroa.Post, error) {
 
 	if metadata.Title == "" {
 		return post, fmt.Errorf("post missing 'title' attribute")
-	}
-
-	if metadata.Slug == "" {
-		return post, fmt.Errorf("post missing 'slug' attribute")
 	}
 
 	var publishedAt string

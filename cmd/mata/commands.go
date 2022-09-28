@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/adrg/xdg"
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slices"
 )
 
 func (app *application) commandsInit(ctx context.Context) *cobra.Command {
@@ -66,14 +69,13 @@ func (app *application) commandsPosts(ctx context.Context) *cobra.Command {
 	cmd.AddCommand(app.commandsPostsGet(ctx))
 	cmd.AddCommand(app.commandsPostsList(ctx))
 	cmd.AddCommand(app.commandsPostsUpdate(ctx))
+	cmd.AddCommand(app.commandsPostsSync(ctx))
 
 	return cmd
 }
 
 func (app *application) commandsPostsCreate(ctx context.Context) *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
-		ctx := cmd.Context()
-
 		filePath := args[0]
 
 		if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
@@ -114,8 +116,6 @@ func (app *application) commandsPostsCreate(ctx context.Context) *cobra.Command 
 
 func (app *application) commandsPostsGet(ctx context.Context) *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
-		ctx := cmd.Context()
-
 		slug := args[0]
 
 		response, err := app.models.Posts.Get(ctx, slug)
@@ -147,8 +147,6 @@ func (app *application) commandsPostsGet(ctx context.Context) *cobra.Command {
 
 func (app *application) commandsPostsList(ctx context.Context) *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
-		ctx := cmd.Context()
-
 		response, err := app.models.Posts.All(ctx)
 		if err != nil {
 			log.Fatalf("error listing posts: %s", err)
@@ -175,8 +173,6 @@ func (app *application) commandsPostsList(ctx context.Context) *cobra.Command {
 
 func (app *application) commandsPostsDelete(ctx context.Context) *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
-		ctx := cmd.Context()
-
 		slug := args[0]
 
 		response, err := app.models.Posts.Delete(ctx, slug)
@@ -204,8 +200,6 @@ func (app *application) commandsPostsDelete(ctx context.Context) *cobra.Command 
 
 func (app *application) commandsPostsUpdate(ctx context.Context) *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
-		ctx := cmd.Context()
-
 		slug := args[0]
 		filePath := args[1]
 
@@ -238,5 +232,97 @@ func (app *application) commandsPostsUpdate(ctx context.Context) *cobra.Command 
 		Args:    cobra.ExactArgs(2), // TODO add flags like --filename --slug
 		Run:     run,
 	}
+
+	return cmd
+}
+
+func (app *application) commandsPostsSync(ctx context.Context) *cobra.Command {
+	run := func(cmd *cobra.Command, args []string) {
+		source := args[0]
+
+		posts, err := app.models.Posts.All(ctx)
+		if err != nil {
+			log.Fatalf("error getting all posts: %s", err)
+		}
+
+		var postsSlugs []string
+		for _, post := range posts.PostList {
+			postsSlugs = append(postsSlugs, post.Slug)
+		}
+
+		var matches []string
+		err = filepath.WalkDir(source, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			ext := filepath.Ext(d.Name())
+			if ext == ".md" || ext == ".markdown" {
+				matches = append(matches, path)
+			}
+
+			return nil
+		})
+		if err != nil {
+			log.Fatalf("error walking directory: %s", err)
+		}
+
+		if len(matches) == 0 {
+			log.Println("no markdown files have been found")
+			return
+		}
+
+		for _, filename := range matches {
+			f, err := ioutil.ReadFile(filename)
+			if err != nil {
+				log.Printf("error reading file '%s': %s", filename, err)
+				continue
+			}
+
+			post, err := NewMarkdownToPost(f)
+			if err != nil {
+				log.Printf("error parsing markdown file '%s': %s", filename, err)
+				continue
+			}
+
+			if ok := slices.Contains(postsSlugs, post.Slug); ok {
+				response, err := app.models.Posts.Update(ctx, post.Slug, post)
+				if err != nil {
+					log.Printf("error updating post '%s' on filename '%s': %s", post.Slug, filename, err)
+					continue
+				}
+
+				if !response.OK {
+					log.Printf("error updating post '%s' on filename '%s': %s", post.Slug, filename, response.Error)
+					continue
+				}
+
+				fmt.Printf("post '%s' on filename '%s' updated successfully!\n", response.Slug, filename)
+				continue
+			}
+
+			response, err := app.models.Posts.Create(ctx, post)
+			if err != nil {
+				log.Printf("error creating post '%s' on filename '%s': %s", post.Slug, filename, err)
+				continue
+			}
+
+			if !response.OK {
+				log.Printf("error creating post '%s' on filename '%s': %s", post.Slug, filename, response.Error)
+				continue
+			}
+
+			fmt.Printf("post '%s' on filename '%s' created successfully!\n", response.Slug, filename)
+		}
+	}
+
+	cmd := &cobra.Command{
+		Use:     "sync [DIRECTORY]",
+		Short:   "sync all posts",
+		Aliases: []string{"s"},
+		Args:    cobra.ExactArgs(1),
+		Run:     run,
+	}
+
 	return cmd
 }
