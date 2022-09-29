@@ -24,7 +24,6 @@ an email patch to
 [~sirodoht/public-inbox@lists.sr.ht](mailto:~sirodoht/public-inbox@lists.sr.ht).
 
 On how to contribute using email patches see
-
 [git-send-email.io](https://git-send-email.io/).
 
 Also checkout our docs on:
@@ -48,7 +47,8 @@ lives under the `mataroa` directory.
 This project is configured with [Nix](https://nixos.org). You can simply run
 `nix develop` and have all the needed right away.
 
-You can also run the program directly with nix: `nix run github:mataroa-blog/mata -- <commands>`
+You can also run the program directly with nix: `nix run
+github:mataroa-blog/mata -- <commands>`.
 
 ## Documentation
 
