@@ -76,13 +76,13 @@ func (app *application) commandsPosts(ctx context.Context) *cobra.Command {
 
 func (app *application) commandsPostsCreate(ctx context.Context) *cobra.Command {
 	run := func(cmd *cobra.Command, args []string) {
-		filePath := args[0]
+		filename := args[0]
 
-		if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-			log.Fatalf("%s: error creating new post: file '%s' not found\n", cmd.Use, filePath)
+		if _, err := os.Stat(filename); errors.Is(err, os.ErrNotExist) {
+			log.Fatalf("%s: error creating new post: file '%s' not found\n", cmd.Use, filename)
 		}
 
-		f, err := ioutil.ReadFile(filePath)
+		f, err := ioutil.ReadFile(filename)
 		if err != nil {
 			log.Fatalf("error reading markdown file: %s", err)
 		}
@@ -99,6 +99,11 @@ func (app *application) commandsPostsCreate(ctx context.Context) *cobra.Command 
 
 		if !response.OK {
 			log.Fatalf("error creating new post: %s\n", response.Error)
+		}
+
+		post.Slug = response.Slug
+		if err := ioutil.WriteFile(filename, []byte(NewPostToMarkdown(post)), fs.ModeAppend); err != nil {
+			log.Printf("updated file '%s' with slug '%s' sucessfully", filename, post.Slug)
 		}
 
 		fmt.Printf("'%s' created successfully: %s\n", response.Slug, response.URL)
@@ -310,6 +315,11 @@ func (app *application) commandsPostsSync(ctx context.Context) *cobra.Command {
 			if !response.OK {
 				log.Printf("error creating post '%s' on filename '%s': %s", post.Slug, filename, response.Error)
 				continue
+			}
+
+			post.Slug = response.Slug
+			if err := ioutil.WriteFile(filename, []byte(NewPostToMarkdown(post)), fs.ModeAppend); err != nil {
+				log.Printf("updated file '%s' with slug '%s' sucessfully", filename, post.Slug)
 			}
 
 			fmt.Printf("post '%s' on filename '%s' created successfully!\n", response.Slug, filename)
