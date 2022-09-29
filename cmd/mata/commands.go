@@ -103,7 +103,7 @@ func (app *application) commandsPostsCreate(ctx context.Context) *cobra.Command 
 	}
 
 	cmd := &cobra.Command{
-		Use:   "create",
+		Use:   "create [FILENAME]",
 		Short: "Create a post",
 		Args:  cobra.ExactArgs(1),
 		Run:   run,
@@ -136,12 +136,13 @@ func (app *application) commandsPostsGet(ctx context.Context) *cobra.Command {
 	}
 
 	cmd := &cobra.Command{
-		Use:     "get",
+		Use:     "get [SLUG]",
 		Short:   "Get a post",
 		Aliases: []string{"g"},
 		Args:    cobra.ExactArgs(1),
 		Run:     run,
 	}
+
 	return cmd
 }
 
@@ -192,7 +193,7 @@ func (app *application) commandsPostsDelete(ctx context.Context) *cobra.Command 
 	}
 
 	cmd := &cobra.Command{
-		Use:     "delete",
+		Use:     "delete [SLUG]",
 		Short:   "Delete a post",
 		Aliases: []string{"d"},
 		Args:    cobra.ExactArgs(1),
@@ -206,10 +207,9 @@ func (app *application) commandsPostsUpdate(ctx context.Context) *cobra.Command 
 	run := func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 
-		slug := args[0]
-		filePath := args[1]
+		filename := args[0]
 
-		f, err := ioutil.ReadFile(filePath)
+		f, err := ioutil.ReadFile(filename)
 		if err != nil {
 			log.Fatalf("error reading markdown file: %s", err)
 		}
@@ -219,24 +219,30 @@ func (app *application) commandsPostsUpdate(ctx context.Context) *cobra.Command 
 			log.Fatalf("error parsing markdown file: %s", err)
 		}
 
-		response, err := app.models.Posts.Update(ctx, slug, post)
+		if post.Slug == "" {
+			log.Fatalf("post should have a 'slug' attribute defined")
+		}
+
+		response, err := app.models.Posts.Update(ctx, post.Slug, post)
 		if err != nil {
-			log.Fatalf("error updating post '%s': %s", slug, err)
+			log.Fatalf("error updating post '%s': %s", post.Slug, err)
 		}
 
 		if !response.OK {
-			log.Fatalf("error updating post '%s': %s", slug, err)
+			log.Fatalf("error updating post '%s': %s", post.Slug, err)
 		}
 
-		fmt.Printf("post '%s' updated sucessfully\n", slug)
+		fmt.Printf("post '%s' updated sucessfully\n", post.Slug)
 	}
 
 	cmd := &cobra.Command{
-		Use:     "update",
+		Use:     "update [FILENAME]",
 		Short:   "Update a post",
 		Aliases: []string{"u"},
-		Args:    cobra.ExactArgs(2), // TODO add flags like --filename --slug
-		Run:     run,
+		Args:    cobra.ExactArgs(1),
 	}
+
+	cmd.Run = run
+
 	return cmd
 }
