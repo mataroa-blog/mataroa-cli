@@ -1,0 +1,21 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.4.0
+    - uses: cachix/install-nix-action@v17
+    - name: "Lint"
+      run: |
+        nix develop .#ci -c make lint
+    - name: "Test"
+      run: |
+        nix develop .#ci -c make test
+    - name: "Build"
+      run: |
+        nix develop .#ci -c make
