@@ -58,6 +58,9 @@ func (app *application) loadConfiguration() error {
 		return fmt.Errorf(`'key' cannot be empty on '%s'`, configPath)
 	}
 
+	app.config.Key = config.Key
+	app.config.BaseUrl = config.BaseUrl
+
 	client, err := mataroa.New().Token(app.config.Key).BaseUrl(app.config.BaseUrl).Build()
 	if err != nil {
 		log.Fatalf("error build mataroa client: %s", err)
