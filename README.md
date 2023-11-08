@@ -1,10 +1,10 @@
-# mata
+# mataroa-cli
 
 [mata](https://github.com/mataroa-blog/mataroa-cli) is CLI tool for [mataroa.blog](https://mataroa.blog).
 
 ## Usage
 
-Run `mata init` to generate the configuration file.
+Run `mataroa init` to generate the configuration file.
 
 ## Building
 

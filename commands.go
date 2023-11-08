@@ -13,8 +13,8 @@ import (
 
 func CommandsRoot() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:               "mata",
-		Short:             "mata is a CLI tool for mataroa.blog",
+		Use:               "mataroa-cli",
+		Short:             "mataroa-cli is a CLI tool for mataroa.blog",
 		CompletionOptions: cobra.CompletionOptions{HiddenDefaultCmd: true},
 		DisableAutoGenTag: true,
 	}
@@ -31,11 +31,11 @@ func CommandInit() *cobra.Command {
 
 		filePath, err := xdg.ConfigFile(ConfigurationFilePath)
 		if err != nil {
-			log.Fatalf("error initializing mata: %s", err)
+			log.Fatalf("error initializing mataroa-cli: %s", err)
 		}
 
 		if _, err := os.Stat(filePath); err == nil {
-			log.Fatalf("error initializing mata: config.json already exists")
+			log.Fatalf("error initializing mataroa-cli: config.json already exists")
 		} else if errors.Is(err, os.ErrNotExist) {
 
 			body, err := json.MarshalIndent(Config{
@@ -43,22 +43,22 @@ func CommandInit() *cobra.Command {
 				Token:  "your-api-key-here",
 			}, "", "  ")
 			if err != nil {
-				log.Fatalf("error initializing mata: couldn't marshal json file: %s", err)
+				log.Fatalf("error initializing mataroa-cli: couldn't marshal json file: %s", err)
 			}
 
 			err = os.WriteFile(filePath, body, os.FileMode((0o600)))
 			if err != nil {
-				log.Fatalf("error initializing mata: %s", err)
+				log.Fatalf("error initializing mataroa-cli: %s", err)
 			}
 
-			fmt.Printf("mata initialized successfully: '%s' file created\n", filePath)
+			fmt.Printf("mataroa-cli initialized successfully: '%s' file created\n", filePath)
 		}
 	}
 
 	cmd := &cobra.Command{
 		Use:     "init",
 		Aliases: []string{"i"},
-		Short:   "Initialize mata",
+		Short:   "Initialize mataroa-cli",
 		Run:     run,
 	}
 
