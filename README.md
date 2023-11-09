@@ -1,6 +1,6 @@
 # mataroa-cli
 
-[mata](https://github.com/mataroa-blog/mataroa-cli) is CLI tool for [mataroa.blog](https://mataroa.blog).
+[mataroa-cli](https://github.com/mataroa-blog/mataroa-cli) is CLI tool for [mataroa.blog](https://mataroa.blog).
 
 ## Usage
 
