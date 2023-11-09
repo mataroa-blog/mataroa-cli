@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ConfigurationFilePath = "mata/config.json"
+	ConfigurationFilePath = "mataroa-cli/config.json"
 	EnvVariableApiUrl     = "MATAROA_API_URL"
 	EnvVariableToken      = "MATAROA_TOKEN"
 )
